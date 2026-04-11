@@ -4,12 +4,29 @@ import { useState } from "react";
 import { Separator } from "@/components/separator";
 import { ApiKeyInput } from "@/components/api-key-input";
 import { PdfUpload } from "@/components/pdf-upload";
+import { ProcessingView } from "@/components/processing-view";
+import { useGenerationStream } from "@/hooks/use-generation-stream";
 
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const { status, messages, notebook, error, generate, reset } =
+    useGenerationStream();
 
   const canGenerate = apiKey.trim().length > 0 && file !== null;
+  const showInput = status === "idle";
+  const showProcessing =
+    status === "uploading" || status === "processing" || status === "error";
+
+  const handleGenerate = () => {
+    if (canGenerate && file) {
+      generate(apiKey, file);
+    }
+  };
+
+  const handleRetry = () => {
+    reset();
+  };
 
   return (
     <main
@@ -33,19 +50,30 @@ export default function Home() {
 
         <Separator />
 
-        <div className="w-full flex flex-col gap-6">
-          <ApiKeyInput value={apiKey} onChange={setApiKey} />
-          <PdfUpload file={file} onFileChange={setFile} />
+        {showInput && (
+          <div data-testid="input-form" className="w-full flex flex-col gap-6">
+            <ApiKeyInput value={apiKey} onChange={setApiKey} />
+            <PdfUpload file={file} onFileChange={setFile} />
 
-          <button
-            data-testid="generate-button"
-            type="button"
-            disabled={!canGenerate}
-            className="w-full py-3 rounded font-bold uppercase tracking-wider text-sm transition-colors bg-accent-magenta text-foreground hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            Generate Notebook
-          </button>
-        </div>
+            <button
+              data-testid="generate-button"
+              type="button"
+              disabled={!canGenerate}
+              onClick={handleGenerate}
+              className="w-full py-3 rounded font-bold uppercase tracking-wider text-sm transition-colors bg-accent-magenta text-foreground hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Generate Notebook
+            </button>
+          </div>
+        )}
+
+        {showProcessing && (
+          <ProcessingView
+            messages={messages}
+            error={error}
+            onRetry={handleRetry}
+          />
+        )}
       </div>
     </main>
   );

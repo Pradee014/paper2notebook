@@ -32,9 +32,10 @@
   - Files: backend/main.py (SSE endpoint), frontend/hooks/use-generation-stream.ts
   - Completed: 2026-04-11 — POST /api/generate SSE endpoint with 9 progress steps, error/complete events, frontend useGenerationStream hook with abort support and state machine
 
-- [ ] Task 7: Build the processing status UI with live progress messages (P0)
+- [x] Task 7: Build the processing status UI with live progress messages (P0)
   - Acceptance: After upload, UI transitions to a processing view showing animated progress messages as they stream in, retro terminal-style aesthetic with blinking cursor, elapsed time counter
   - Files: frontend/components/processing-view.tsx, frontend/components/progress-message.tsx
+  - Completed: 2026-04-11 — ProcessingView with terminal-style progress messages (> prefix, latest highlighted), blinking yellow cursor, elapsed timer (MM:SS), error state with magenta "Try Again" button, page wired to useGenerationStream hook with state-driven view switching
 
 - [ ] Task 8: Build notebook assembly and .ipynb file download (P0)
   - Acceptance: Backend assembles GPT-5.4 output into a valid .ipynb file using nbformat, frontend receives the file and offers a download button, downloaded file opens correctly in Jupyter/VS Code
