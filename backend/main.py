@@ -12,6 +12,7 @@ from pdf_parser import extract_text_from_pdf
 from notebook_generator import generate_notebook_content
 from prompts import build_system_prompt, build_user_prompt
 from sanitizer import sanitize_text
+from output_validator import validate_notebook_safety
 
 app = FastAPI(
     title="Paper2Notebook API",
@@ -200,6 +201,15 @@ async def generate_notebook(
             return
 
         yield {"event": "progress", "data": f"Generated {len(notebook_data['cells'])} notebook cells."}
+
+        # Step 4b: Validate output safety
+        safety_warnings = validate_notebook_safety(notebook_data["cells"])
+        if safety_warnings:
+            notebook_data["safety_warnings"] = safety_warnings
+            yield {
+                "event": "progress",
+                "data": f"Safety scan: {len(safety_warnings)} warning(s) found in generated code.",
+            }
 
         # Step 5: Build .ipynb
         yield {"event": "progress", "data": "Building notebook..."}

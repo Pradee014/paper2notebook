@@ -27,9 +27,10 @@
   - Files: backend/prompts.py, backend/sanitizer.py (new), backend/tests/
   - Completed: 2026-04-11 — Created sanitizer.py with sanitize_text() (null byte/control char stripping, unicode cleanup, 100K truncation, whitespace normalization). Hardened prompts.py: system prompt has anti-injection clause, user prompt uses <paper-content> XML delimiters with post-content anchor. main.py wired to sanitize before LLM call. 22 new tests (15 sanitizer + 7 prompt), 74 total passing.
 
-- [ ] Task 6: Implement prompt injection output defenses — notebook safety validation (P0)
+- [x] Task 6: Implement prompt injection output defenses — notebook safety validation (P0)
   - Acceptance: New `validate_notebook_safety()` scans code cells for dangerous patterns (`os.system`, `subprocess`, `eval`, `exec`, `__import__`, network calls to hardcoded URLs). Returns a list of warnings per cell. Warnings are included in the SSE `complete` event so frontend can display them. Tests cover detection of each pattern.
   - Files: backend/output_validator.py (new), backend/main.py, backend/tests/
+  - Completed: 2026-04-11 — Created output_validator.py scanning 14 dangerous patterns (os.system, subprocess, eval, exec, __import__, open-write, requests, urllib, shutil, socket, ctypes, os.environ, os.popen, os.exec*). Flags but doesn't block. Warnings added to SSE complete event as safety_warnings. 18 new tests, 92 total passing.
 
 - [ ] Task 7: Add rate limiting with slowapi (P0)
   - Acceptance: `/api/generate` limited to 5 requests/minute per IP. `/api/extract` limited to 10 requests/minute per IP. Rate limit exceeded returns HTTP 429 with clear message. `slowapi` added to requirements.txt. Tests verify rate limiting triggers.
