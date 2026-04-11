@@ -1,6 +1,6 @@
 # Sprint v2 - Tasks
 
-## Status: In Progress
+## Status: Complete
 
 - [x] Task 1: Remove Colab feature and clean up dead code (P0)
   - Acceptance: `colab.ts` deleted, Colab button removed from result view, Colab-related tests removed/updated, all remaining tests pass, no dead imports
@@ -57,6 +57,7 @@
   - Files: frontend/src/lib/history.ts (new), frontend/src/components/history-panel.tsx (new), frontend/src/app/page.tsx, frontend/tests/
   - Completed: 2026-04-11 — Created history.ts (saveToHistory, loadHistory, deleteFromHistory, clearHistory, max 20 entries, title extraction from first markdown cell). Created history-panel.tsx with entries list, download per entry, clear all button. Wired into page.tsx: auto-save on completion, show panel on input screen when history exists. 12 unit + 5 E2E new tests, 28 unit + 43 E2E total passing.
 
-- [ ] Task 12: Update all tests for v2 security changes and add security-focused test cases (P1)
+- [x] Task 12: Update all tests for v2 security changes and add security-focused test cases (P1)
   - Acceptance: All existing tests updated to work with new auth header, removed Colab references, etc. New tests added: malformed PDF rejection, oversized input handling, rate limit verification, sanitizer edge cases, output validator coverage. Full test suite passes (`pytest` + `vitest` + `playwright`).
   - Files: backend/tests/, frontend/tests/
+  - Completed: 2026-04-11 — Added test_security_integration.py with 12 tests covering: malformed input attacks (oversized filename, null bytes, double extension), prompt injection payloads (sanitization, XML delimiter escape), output validator in SSE pipeline (dangerous code warnings, safe code clean), auth edge cases (extra spaces, lowercase bearer, long header), security headers on error responses. Full suite: 118 backend + 28 unit + 43 E2E = 189 tests, all passing.
