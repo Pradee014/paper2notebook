@@ -21,19 +21,20 @@ export function useGenerationStream() {
   });
   const abortRef = useRef<AbortController | null>(null);
 
-  const generate = useCallback(async (apiKey: string, file: File) => {
+  const generate = useCallback(async (apiKey: string, file: File, provider: string = "openai") => {
     // Reset state
     setState({ status: "uploading", messages: [], notebook: null, error: null });
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("api_key", apiKey);
+    formData.append("provider", provider);
 
     abortRef.current = new AbortController();
 
     try {
       const response = await fetch(`${API_URL}/api/generate`, {
         method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}` },
         body: formData,
         signal: abortRef.current.signal,
       });

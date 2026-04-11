@@ -6,6 +6,8 @@ from main import app
 
 TEST_PDF_PATH = os.path.join(os.path.dirname(__file__), "test_paper.pdf")
 
+AUTH_HEADER = {"Authorization": "Bearer sk-test-key"}
+
 
 @pytest.mark.asyncio
 async def test_generate_extracts_text_from_pdf():
@@ -15,7 +17,7 @@ async def test_generate_extracts_text_from_pdf():
             response = await client.post(
                 "/api/extract",
                 files={"file": ("paper.pdf", f, "application/pdf")},
-                data={"api_key": "sk-test-key"},
+                headers=AUTH_HEADER,
             )
     assert response.status_code == 200
     data = response.json()
@@ -31,7 +33,7 @@ async def test_generate_rejects_missing_file():
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         response = await client.post(
             "/api/extract",
-            data={"api_key": "sk-test-key"},
+            headers=AUTH_HEADER,
         )
     assert response.status_code == 422
 
@@ -45,7 +47,7 @@ async def test_generate_rejects_missing_api_key():
                 "/api/extract",
                 files={"file": ("paper.pdf", f, "application/pdf")},
             )
-    assert response.status_code == 422
+    assert response.status_code == 401
 
 
 @pytest.mark.asyncio
@@ -55,7 +57,7 @@ async def test_generate_rejects_non_pdf_file():
         response = await client.post(
             "/api/extract",
             files={"file": ("notes.txt", b"just some text", "text/plain")},
-            data={"api_key": "sk-test-key"},
+            headers=AUTH_HEADER,
         )
     assert response.status_code == 400
     data = response.json()
@@ -69,7 +71,7 @@ async def test_generate_rejects_corrupt_pdf():
         response = await client.post(
             "/api/extract",
             files={"file": ("bad.pdf", b"not a real pdf", "application/pdf")},
-            data={"api_key": "sk-test-key"},
+            headers=AUTH_HEADER,
         )
     assert response.status_code == 400
     data = response.json()

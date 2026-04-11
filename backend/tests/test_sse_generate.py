@@ -9,6 +9,8 @@ from main import app
 
 TEST_PDF_PATH = os.path.join(os.path.dirname(__file__), "test_paper.pdf")
 
+AUTH_HEADER = {"Authorization": "Bearer sk-test-key"}
+
 MOCK_CELLS = [
     {"cell_type": "markdown", "source": "# Test Notebook"},
     {"cell_type": "code", "source": "import numpy as np"},
@@ -43,8 +45,7 @@ async def test_sse_generate_streams_progress_events():
                 response = await client.post(
                     "/api/generate",
                     files={"file": ("paper.pdf", f, "application/pdf")},
-                    data={"api_key": "sk-test-key"},
-                    headers={"Accept": "text/event-stream"},
+                    headers={**AUTH_HEADER, "Accept": "text/event-stream"},
                 )
 
         assert response.status_code == 200
@@ -76,8 +77,7 @@ async def test_sse_generate_final_event_contains_notebook():
                 response = await client.post(
                     "/api/generate",
                     files={"file": ("paper.pdf", f, "application/pdf")},
-                    data={"api_key": "sk-test-key"},
-                    headers={"Accept": "text/event-stream"},
+                    headers={**AUTH_HEADER, "Accept": "text/event-stream"},
                 )
 
         events = _parse_sse(response.text)
@@ -105,8 +105,7 @@ async def test_sse_generate_streams_error_on_api_failure():
                 response = await client.post(
                     "/api/generate",
                     files={"file": ("paper.pdf", f, "application/pdf")},
-                    data={"api_key": "sk-test-key"},
-                    headers={"Accept": "text/event-stream"},
+                    headers={**AUTH_HEADER, "Accept": "text/event-stream"},
                 )
 
         events = _parse_sse(response.text)
@@ -121,8 +120,7 @@ async def test_sse_generate_rejects_non_pdf():
         response = await client.post(
             "/api/generate",
             files={"file": ("notes.txt", b"hello", "text/plain")},
-            data={"api_key": "sk-test-key"},
-            headers={"Accept": "text/event-stream"},
+            headers={**AUTH_HEADER, "Accept": "text/event-stream"},
         )
     assert response.status_code == 400
 

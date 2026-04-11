@@ -3,7 +3,7 @@ import base64
 import json
 
 import openai
-from fastapi import FastAPI, File, Form, Request, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, Header, Request, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from sse_starlette.sse import EventSourceResponse
@@ -59,6 +59,18 @@ PROVIDER_CONFIG = {
 }
 
 
+def _extract_api_key(authorization: str | None) -> str:
+    """Extract API key from Authorization: Bearer <key> header."""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing Authorization header")
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authorization header must use Bearer scheme")
+    key = authorization[len("Bearer "):]
+    if not key.strip():
+        raise HTTPException(status_code=401, detail="Empty API key")
+    return key.strip()
+
+
 def _friendly_api_error(label: str, exc: Exception) -> str:
     """Turn verbose SDK exceptions into short, actionable messages."""
     msg = str(exc)
@@ -75,8 +87,9 @@ def _friendly_api_error(label: str, exc: Exception) -> str:
 @app.post("/api/extract")
 async def extract_pdf(
     file: UploadFile = File(...),
-    api_key: str = Form(...),
+    authorization: str | None = Header(None),
 ):
+    api_key = _extract_api_key(authorization)
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
 
@@ -96,9 +109,10 @@ async def extract_pdf(
 @app.post("/api/generate")
 async def generate_notebook(
     file: UploadFile = File(...),
-    api_key: str = Form(...),
     provider: str = Form("openai"),
+    authorization: str | None = Header(None),
 ):
+    api_key = _extract_api_key(authorization)
     if provider not in PROVIDER_CONFIG:
         raise HTTPException(status_code=400, detail=f"Unsupported provider: {provider}")
 

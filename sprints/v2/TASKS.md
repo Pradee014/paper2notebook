@@ -12,9 +12,10 @@
   - Files: backend/main.py, backend/tests/
   - Completed: 2026-04-11 — Added SecurityHeadersMiddleware (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy). Tightened CORS: allow_methods to GET/POST/OPTIONS, allow_headers to Content-Type/Accept/Authorization. 7 new tests, 38 total backend tests passing.
 
-- [ ] Task 3: Move API key from form body to Authorization header (P0)
+- [x] Task 3: Move API key from form body to Authorization header (P0)
   - Acceptance: Backend reads API key from `Authorization: Bearer <key>` header. Frontend sends key in header, not FormData. Both `/api/extract` and `/api/generate` updated. Existing tests updated. Key no longer appears in request body.
   - Files: backend/main.py, frontend/src/hooks/use-generation-stream.ts, backend/tests/, frontend/tests/
+  - Completed: 2026-04-11 — Added _extract_api_key() helper for Bearer token parsing. Both endpoints now read from Authorization header. Frontend sends key in header. 7 new auth tests + 8 existing tests updated. 45 backend + 4 unit + 38 E2E all passing.
 
 - [ ] Task 4: Add PDF magic byte validation and content-type verification (P0)
   - Acceptance: Backend checks uploaded file starts with `%PDF` magic bytes before processing. Rejects files that pass extension check but are not valid PDFs. Test with a `.txt` file renamed to `.pdf`. Minimum file size enforced (1KB).
