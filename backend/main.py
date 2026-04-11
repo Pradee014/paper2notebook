@@ -1,9 +1,12 @@
 import asyncio
 import base64
 import json
+import logging
 
 import openai
 from fastapi import FastAPI, File, Form, Header, Request, UploadFile, HTTPException
+
+logger = logging.getLogger("paper2notebook")
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter
@@ -13,6 +16,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from sse_starlette.sse import EventSourceResponse
 
 from pdf_parser import extract_text_from_pdf
+from notebook_builder import build_notebook
 from notebook_generator import generate_notebook_content
 from prompts import build_system_prompt, build_user_prompt
 from sanitizer import sanitize_text
@@ -78,6 +82,8 @@ PROVIDER_CONFIG = {
     },
 }
 
+
+LLM_TIMEOUT_SECONDS = 120  # 2 minutes — max time to wait for LLM response
 
 MIN_FILE_SIZE = 1024  # 1 KB — anything smaller is not a real paper PDF
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
@@ -195,17 +201,41 @@ async def generate_notebook(
         client = openai.AsyncOpenAI(**client_kwargs)
 
         try:
-            response = await client.chat.completions.create(
-                model=prov["model"],
-                messages=[
-                    {"role": "system", "content": build_system_prompt()},
-                    {"role": "user", "content": build_user_prompt(paper_text)},
-                ],
-                temperature=0.3,
-                max_tokens=16000,
+            response = await asyncio.wait_for(
+                client.chat.completions.create(
+                    model=prov["model"],
+                    messages=[
+                        {"role": "system", "content": build_system_prompt()},
+                        {"role": "user", "content": build_user_prompt(paper_text)},
+                    ],
+                    temperature=0.3,
+                    max_tokens=16000,
+                ),
+                timeout=LLM_TIMEOUT_SECONDS,
             )
+        except asyncio.TimeoutError:
+            logger.error("LLM call timed out after %d seconds", LLM_TIMEOUT_SECONDS)
+            yield {"event": "error", "data": json.dumps({"message": "Request timed out. The paper may be too complex — please try again."})}
+            return
+        except openai.AuthenticationError as e:
+            logger.error("LLM authentication error: %s", e)
+            yield {"event": "error", "data": json.dumps({"message": f"Invalid {prov['label']} API key. Please check and try again."})}
+            return
+        except openai.RateLimitError as e:
+            logger.error("LLM rate limit error: %s", e)
+            yield {"event": "error", "data": json.dumps({"message": f"{prov['label']} quota exceeded. Check your plan and billing at your provider dashboard."})}
+            return
+        except openai.APIConnectionError as e:
+            logger.error("LLM connection error: %s", e)
+            yield {"event": "error", "data": json.dumps({"message": f"Could not connect to {prov['label']}. Please check your network and try again."})}
+            return
+        except openai.APIError as e:
+            logger.error("LLM API error (status=%s): %s", getattr(e, "status_code", "?"), e)
+            yield {"event": "error", "data": json.dumps({"message": f"{prov['label']} service error. Please try again later."})}
+            return
         except Exception as e:
-            yield {"event": "error", "data": json.dumps({"message": _friendly_api_error(prov["label"], e)})}
+            logger.error("Unexpected LLM error: %s", e)
+            yield {"event": "error", "data": json.dumps({"message": "An unexpected error occurred during generation. Please try again."})}
             return
 
         yield {"event": "progress", "data": "Generating implementation code..."}
@@ -219,7 +249,8 @@ async def generate_notebook(
             from notebook_generator import _parse_json_response
             notebook_data = _parse_json_response(raw_content)
         except (json.JSONDecodeError, ValueError) as e:
-            yield {"event": "error", "data": json.dumps({"message": f"Failed to parse response: {e}"})}
+            logger.error("Failed to parse LLM response: %s", e)
+            yield {"event": "error", "data": json.dumps({"message": "Failed to parse the generated notebook. Please try again."})}
             return
 
         yield {"event": "progress", "data": f"Generated {len(notebook_data['cells'])} notebook cells."}
@@ -236,11 +267,11 @@ async def generate_notebook(
         # Step 5: Build .ipynb
         yield {"event": "progress", "data": "Building notebook..."}
 
-        from notebook_builder import build_notebook
         try:
             ipynb_str = build_notebook(notebook_data["cells"])
         except Exception as e:
-            yield {"event": "error", "data": json.dumps({"message": f"Notebook assembly error: {e}"})}
+            logger.error("Notebook assembly error: %s", e)
+            yield {"event": "error", "data": json.dumps({"message": "Failed to assemble the notebook file. Please try again."})}
             return
 
         ipynb_base64 = base64.b64encode(ipynb_str.encode("utf-8")).decode("ascii")

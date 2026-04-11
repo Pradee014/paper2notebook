@@ -37,9 +37,10 @@
   - Files: backend/main.py, backend/requirements.txt, backend/tests/
   - Completed: 2026-04-11 — Added slowapi with per-IP rate limiting: /api/extract 10/min, /api/generate 5/min. Custom 429 handler with user-friendly message. Health endpoint unaffected. conftest.py resets limiter between tests. 5 new tests, 97 total passing.
 
-- [ ] Task 8: Add request timeouts, specific exception handling, and generic error responses (P0)
+- [x] Task 8: Add request timeouts, specific exception handling, and generic error responses (P0)
   - Acceptance: OpenAI API call has 120-second timeout. Broad `except Exception` replaced with specific catches (`openai.APIError`, `openai.RateLimitError`, `openai.APIConnectionError`, `asyncio.TimeoutError`). All client-facing error messages are generic (no internal details). Python `logging` module configured with structured output. Server logs contain full error details.
   - Files: backend/main.py, backend/notebook_generator.py, backend/tests/
+  - Completed: 2026-04-11 — LLM call wrapped in asyncio.wait_for(timeout=120s). Exception handling: TimeoutError, AuthenticationError, RateLimitError, APIConnectionError, APIError, and fallback Exception — each with user-friendly message. All error SSE events now generic (no raw exceptions/paths). Python logging at ERROR level preserves full details server-side. 7 new tests, 104 total passing.
 
 - [ ] Task 9: Pin dependency versions with upper bounds (P1)
   - Acceptance: All dependencies in `requirements.txt` have upper bounds (e.g., `>=1.60.0,<2.0.0`). Frontend `package.json` dependencies use exact versions or tilde ranges. No open-ended `>=` without ceiling.
