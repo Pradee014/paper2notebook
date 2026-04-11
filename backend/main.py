@@ -5,6 +5,10 @@ import json
 import openai
 from fastapi import FastAPI, File, Form, Header, Request, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from starlette.middleware.base import BaseHTTPMiddleware
 from sse_starlette.sse import EventSourceResponse
 
@@ -14,11 +18,25 @@ from prompts import build_system_prompt, build_user_prompt
 from sanitizer import sanitize_text
 from output_validator import validate_notebook_safety
 
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(
     title="Paper2Notebook API",
     description="Convert research papers to structured Jupyter notebooks",
     version="0.1.0",
 )
+
+app.state.limiter = limiter
+
+
+def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Rate limit exceeded. Please try again later."},
+    )
+
+
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -102,7 +120,9 @@ def _friendly_api_error(label: str, exc: Exception) -> str:
 
 
 @app.post("/api/extract")
+@limiter.limit("10/minute")
 async def extract_pdf(
+    request: Request,
     file: UploadFile = File(...),
     authorization: str | None = Header(None),
 ):
@@ -122,7 +142,9 @@ async def extract_pdf(
 
 
 @app.post("/api/generate")
+@limiter.limit("5/minute")
 async def generate_notebook(
+    request: Request,
     file: UploadFile = File(...),
     provider: str = Form("openai"),
     authorization: str | None = Header(None),

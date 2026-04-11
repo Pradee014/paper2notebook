@@ -32,9 +32,10 @@
   - Files: backend/output_validator.py (new), backend/main.py, backend/tests/
   - Completed: 2026-04-11 — Created output_validator.py scanning 14 dangerous patterns (os.system, subprocess, eval, exec, __import__, open-write, requests, urllib, shutil, socket, ctypes, os.environ, os.popen, os.exec*). Flags but doesn't block. Warnings added to SSE complete event as safety_warnings. 18 new tests, 92 total passing.
 
-- [ ] Task 7: Add rate limiting with slowapi (P0)
+- [x] Task 7: Add rate limiting with slowapi (P0)
   - Acceptance: `/api/generate` limited to 5 requests/minute per IP. `/api/extract` limited to 10 requests/minute per IP. Rate limit exceeded returns HTTP 429 with clear message. `slowapi` added to requirements.txt. Tests verify rate limiting triggers.
   - Files: backend/main.py, backend/requirements.txt, backend/tests/
+  - Completed: 2026-04-11 — Added slowapi with per-IP rate limiting: /api/extract 10/min, /api/generate 5/min. Custom 429 handler with user-friendly message. Health endpoint unaffected. conftest.py resets limiter between tests. 5 new tests, 97 total passing.
 
 - [ ] Task 8: Add request timeouts, specific exception handling, and generic error responses (P0)
   - Acceptance: OpenAI API call has 120-second timeout. Broad `except Exception` replaced with specific catches (`openai.APIError`, `openai.RateLimitError`, `openai.APIConnectionError`, `asyncio.TimeoutError`). All client-facing error messages are generic (no internal details). Python `logging` module configured with structured output. Server logs contain full error details.
