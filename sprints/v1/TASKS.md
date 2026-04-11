@@ -22,9 +22,10 @@
   - Files: backend/main.py, backend/pdf_parser.py
   - Completed: 2026-04-11 — POST /api/extract endpoint with PyMuPDF text extraction, validates PDF type/size/parsability, returns {text, pages}, proper HTTP error codes for all failure modes
 
-- [ ] Task 5: Implement OpenAI GPT-5.4 notebook generation with structured prompt (P0)
+- [x] Task 5: Implement OpenAI GPT-5.4 notebook generation with structured prompt (P0)
   - Acceptance: Backend sends extracted paper text to GPT-5.4 with a detailed system prompt, receives structured notebook content (markdown cells + code cells with synthetic data), handles API errors gracefully
   - Files: backend/notebook_generator.py, backend/prompts.py
+  - Completed: 2026-04-11 — Detailed system prompt covering all 11 notebook sections, JSON output format with cell validation, GPT-5.4 async call with error handling, markdown code-fence extraction fallback
 
 - [ ] Task 6: Implement SSE streaming endpoint for real-time progress updates (P0)
   - Acceptance: Backend streams progress events (e.g., "Extracting text...", "Analyzing paper structure...", "Generating implementation code...", "Building notebook...") via SSE, frontend connects and displays messages in real-time
