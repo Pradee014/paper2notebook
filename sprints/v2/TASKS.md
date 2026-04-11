@@ -7,9 +7,10 @@
   - Files: frontend/src/lib/colab.ts (delete), frontend/src/components/result-view.tsx, frontend/tests/
   - Completed: 2026-04-11 — Deleted colab.ts, removed Colab button and imports from result-view.tsx, deleted colab.test.ts and colab-button.spec.ts. All 38 E2E + 4 unit + 31 backend tests pass. Zero colab references remain in src/.
 
-- [ ] Task 2: Add security headers middleware and tighten CORS configuration (P0)
+- [x] Task 2: Add security headers middleware and tighten CORS configuration (P0)
   - Acceptance: All responses include `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`. CORS `allow_methods` restricted to `["GET", "POST", "OPTIONS"]`, `allow_headers` restricted to `["Content-Type", "Accept", "Authorization"]`. Tests verify headers.
   - Files: backend/main.py, backend/tests/
+  - Completed: 2026-04-11 — Added SecurityHeadersMiddleware (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy). Tightened CORS: allow_methods to GET/POST/OPTIONS, allow_headers to Content-Type/Accept/Authorization. 7 new tests, 38 total backend tests passing.
 
 - [ ] Task 3: Move API key from form body to Authorization header (P0)
   - Acceptance: Backend reads API key from `Authorization: Bearer <key>` header. Frontend sends key in header, not FormData. Both `/api/extract` and `/api/generate` updated. Existing tests updated. Key no longer appears in request body.

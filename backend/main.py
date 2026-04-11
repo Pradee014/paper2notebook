@@ -3,8 +3,9 @@ import base64
 import json
 
 import openai
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, Request, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from sse_starlette.sse import EventSourceResponse
 
 from pdf_parser import extract_text_from_pdf
@@ -17,18 +18,58 @@ app = FastAPI(
     version="0.1.0",
 )
 
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Accept", "Authorization"],
 )
 
 
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "service": "paper2notebook"}
+
+
+PROVIDER_CONFIG = {
+    "openai": {
+        "base_url": None,
+        "model": "gpt-5.4",
+        "label": "OpenAI",
+    },
+    "gemini": {
+        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "model": "gemini-2.5-flash",
+        "label": "Gemini",
+    },
+}
+
+
+def _friendly_api_error(label: str, exc: Exception) -> str:
+    """Turn verbose SDK exceptions into short, actionable messages."""
+    msg = str(exc)
+    status = getattr(exc, "status_code", None)
+    if status == 401 or "API key not valid" in msg or "Incorrect API key" in msg:
+        return f"Invalid {label} API key. Please check and try again."
+    if status == 429 or "quota" in msg.lower() or "rate" in msg.lower():
+        return f"{label} quota exceeded. Check your plan and billing at your provider dashboard."
+    if status == 404 or "model" in msg.lower() and "not found" in msg.lower():
+        return f"{label} model not available. It may require a paid plan."
+    return f"{label} API error: {msg[:200]}"
 
 
 @app.post("/api/extract")
@@ -56,7 +97,13 @@ async def extract_pdf(
 async def generate_notebook(
     file: UploadFile = File(...),
     api_key: str = Form(...),
+    provider: str = Form("openai"),
 ):
+    if provider not in PROVIDER_CONFIG:
+        raise HTTPException(status_code=400, detail=f"Unsupported provider: {provider}")
+
+    prov = PROVIDER_CONFIG[provider]
+
     # Validate file type before starting SSE stream
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
@@ -89,15 +136,18 @@ async def generate_notebook(
         yield {"event": "progress", "data": "Analyzing paper structure..."}
         await asyncio.sleep(0)
 
-        # Step 3: Call GPT-5.4
-        yield {"event": "progress", "data": "Sending to GPT-5.4 for notebook generation..."}
+        # Step 3: Call LLM
+        yield {"event": "progress", "data": f"Sending to {prov['label']} ({prov['model']}) for notebook generation..."}
         yield {"event": "progress", "data": "Generating mathematical formulations..."}
 
-        client = openai.AsyncOpenAI(api_key=api_key)
+        client_kwargs = {"api_key": api_key}
+        if prov["base_url"]:
+            client_kwargs["base_url"] = prov["base_url"]
+        client = openai.AsyncOpenAI(**client_kwargs)
 
         try:
             response = await client.chat.completions.create(
-                model="gpt-5.4",
+                model=prov["model"],
                 messages=[
                     {"role": "system", "content": build_system_prompt()},
                     {"role": "user", "content": build_user_prompt(paper_text)},
@@ -106,7 +156,7 @@ async def generate_notebook(
                 max_tokens=16000,
             )
         except Exception as e:
-            yield {"event": "error", "data": json.dumps({"message": f"OpenAI API error: {e}"})}
+            yield {"event": "error", "data": json.dumps({"message": _friendly_api_error(prov["label"], e)})}
             return
 
         yield {"event": "progress", "data": "Generating implementation code..."}
