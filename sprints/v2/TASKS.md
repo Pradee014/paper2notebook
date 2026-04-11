@@ -42,9 +42,10 @@
   - Files: backend/main.py, backend/notebook_generator.py, backend/tests/
   - Completed: 2026-04-11 — LLM call wrapped in asyncio.wait_for(timeout=120s). Exception handling: TimeoutError, AuthenticationError, RateLimitError, APIConnectionError, APIError, and fallback Exception — each with user-friendly message. All error SSE events now generic (no raw exceptions/paths). Python logging at ERROR level preserves full details server-side. 7 new tests, 104 total passing.
 
-- [ ] Task 9: Pin dependency versions with upper bounds (P1)
+- [x] Task 9: Pin dependency versions with upper bounds (P1)
   - Acceptance: All dependencies in `requirements.txt` have upper bounds (e.g., `>=1.60.0,<2.0.0`). Frontend `package.json` dependencies use exact versions or tilde ranges. No open-ended `>=` without ceiling.
   - Files: backend/requirements.txt, frontend/package.json
+  - Completed: 2026-04-11 — All 11 Python deps pinned with upper bounds (e.g., openai>=1.60.0,<2.0.0). Frontend: ^ ranges replaced with ~ (tilde) for patch-level updates only, devDeps pinned to specific minor versions. 2 new tests enforce pinning policy. 106 backend + 4 unit all passing.
 
 - [ ] Task 10: Add Zod schema validation for all frontend API responses (P1)
   - Acceptance: Zod schemas defined for SSE event payloads (progress, complete, error). `use-generation-stream.ts` validates parsed JSON through Zod before storing in state. Invalid responses trigger a user-friendly error. Zod added to package.json. Unit tests cover valid and invalid payloads.
