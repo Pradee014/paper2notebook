@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import json
 
 import openai
@@ -124,8 +125,19 @@ async def generate_notebook(
 
         yield {"event": "progress", "data": f"Generated {len(notebook_data['cells'])} notebook cells."}
 
-        # Step 5: Complete
+        # Step 5: Build .ipynb
         yield {"event": "progress", "data": "Building notebook..."}
+
+        from notebook_builder import build_notebook
+        try:
+            ipynb_str = build_notebook(notebook_data["cells"])
+        except Exception as e:
+            yield {"event": "error", "data": json.dumps({"message": f"Notebook assembly error: {e}"})}
+            return
+
+        ipynb_base64 = base64.b64encode(ipynb_str.encode("utf-8")).decode("ascii")
+        notebook_data["ipynb_base64"] = ipynb_base64
+
         yield {"event": "complete", "data": json.dumps(notebook_data)}
 
     return EventSourceResponse(event_stream())

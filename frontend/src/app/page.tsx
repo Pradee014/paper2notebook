@@ -5,6 +5,7 @@ import { Separator } from "@/components/separator";
 import { ApiKeyInput } from "@/components/api-key-input";
 import { PdfUpload } from "@/components/pdf-upload";
 import { ProcessingView } from "@/components/processing-view";
+import { ResultView } from "@/components/result-view";
 import { useGenerationStream } from "@/hooks/use-generation-stream";
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
   const showInput = status === "idle";
   const showProcessing =
     status === "uploading" || status === "processing" || status === "error";
+  const showResult = status === "complete" && notebook !== null;
 
   const handleGenerate = () => {
     if (canGenerate && file) {
@@ -72,6 +74,13 @@ export default function Home() {
             messages={messages}
             error={error}
             onRetry={handleRetry}
+          />
+        )}
+
+        {showResult && (
+          <ResultView
+            notebook={notebook as { cells: Array<{ cell_type: string; source: string }>; ipynb_base64?: string }}
+            onNewNotebook={handleRetry}
           />
         )}
       </div>
