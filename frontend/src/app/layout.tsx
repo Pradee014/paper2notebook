@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Mono } from "next/font/google";
+import { Header } from "@/components/header";
 import "./globals.css";
 
 const spaceMono = Space_Mono({
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${spaceMono.variable} h-full`}>
       <body className="min-h-full flex flex-col font-mono bg-background text-foreground">
+        <Header />
         {children}
       </body>
     </html>

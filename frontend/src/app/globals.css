@@ -7,6 +7,7 @@
   --accent-magenta: #e91e8c;
   --surface: #141414;
   --border: #2a2a2a;
+  --muted: #888888;
 }
 
 @theme inline {
@@ -16,6 +17,7 @@
   --color-accent-magenta: var(--accent-magenta);
   --color-surface: var(--surface);
   --color-border: var(--border);
+  --color-muted: var(--muted);
   --font-mono: var(--font-space-mono), ui-monospace, monospace;
 }
 
@@ -23,4 +25,20 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-mono);
+}
+
+/* Blinking cursor animation — retro terminal feel */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Selection color */
+::selection {
+  background: var(--accent-magenta);
+  color: var(--foreground);
 }

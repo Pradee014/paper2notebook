@@ -7,9 +7,10 @@
   - Files: frontend/package.json, frontend/next.config.ts, frontend/tailwind.config.ts, backend/main.py, backend/requirements.txt, backend/pyproject.toml
   - Completed: 2026-04-11 — Next.js 16 frontend + FastAPI backend scaffolded, Space Mono font configured, dark theme CSS vars, CORS for localhost:3000, health endpoint, Vitest + pytest test suites passing
 
-- [ ] Task 2: Build ARC Prize-inspired design system and layout shell (P0)
+- [x] Task 2: Build ARC Prize-inspired design system and layout shell (P0)
   - Acceptance: Dark theme with Space Mono font, yellow/magenta accent colors, global styles applied, responsive base layout with header and main content area
   - Files: frontend/app/layout.tsx, frontend/app/globals.css, frontend/app/page.tsx, frontend/components/header.tsx
+  - Completed: 2026-04-11 — Dark theme (#0a0a0a), Space Mono font, yellow/magenta accents, header with brand, dashed yellow separator, responsive layout, blinking cursor animation, magenta text selection
 
 - [ ] Task 3: Build the landing page with API key input and PDF upload zone (P0)
   - Acceptance: Page shows hero text, API key input field (masked, stored in state only), drag-and-drop PDF upload zone with file validation (PDF only, max 50MB), upload triggers processing flow
