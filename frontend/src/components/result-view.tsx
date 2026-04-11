@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { buildColabUrl } from "@/lib/colab";
+import { useCallback } from "react";
 
 interface NotebookData {
   cells: Array<{ cell_type: string; source: string }>;
@@ -20,11 +19,6 @@ export function ResultView({ notebook, onNewNotebook }: ResultViewProps) {
   const codeCount = notebook.cells.filter(
     (c) => c.cell_type === "code"
   ).length;
-
-  const colabUrl = useMemo(() => {
-    if (!notebook.ipynb_base64) return null;
-    return buildColabUrl(notebook.ipynb_base64);
-  }, [notebook.ipynb_base64]);
 
   const handleDownload = useCallback(() => {
     if (!notebook.ipynb_base64) return;
@@ -73,18 +67,6 @@ export function ResultView({ notebook, onNewNotebook }: ResultViewProps) {
           >
             Download .ipynb
           </button>
-
-          {colabUrl && (
-            <a
-              data-testid="colab-button"
-              href={colabUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 py-3 rounded font-bold uppercase tracking-wider text-sm border border-accent-yellow text-accent-yellow hover:bg-accent-yellow/10 transition-colors text-center"
-            >
-              Open in Colab
-            </a>
-          )}
         </div>
 
         <button
