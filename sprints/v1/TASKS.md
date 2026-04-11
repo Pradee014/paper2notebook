@@ -27,9 +27,10 @@
   - Files: backend/notebook_generator.py, backend/prompts.py
   - Completed: 2026-04-11 — Detailed system prompt covering all 11 notebook sections, JSON output format with cell validation, GPT-5.4 async call with error handling, markdown code-fence extraction fallback
 
-- [ ] Task 6: Implement SSE streaming endpoint for real-time progress updates (P0)
+- [x] Task 6: Implement SSE streaming endpoint for real-time progress updates (P0)
   - Acceptance: Backend streams progress events (e.g., "Extracting text...", "Analyzing paper structure...", "Generating implementation code...", "Building notebook...") via SSE, frontend connects and displays messages in real-time
   - Files: backend/main.py (SSE endpoint), frontend/hooks/use-generation-stream.ts
+  - Completed: 2026-04-11 — POST /api/generate SSE endpoint with 9 progress steps, error/complete events, frontend useGenerationStream hook with abort support and state machine
 
 - [ ] Task 7: Build the processing status UI with live progress messages (P0)
   - Acceptance: After upload, UI transitions to a processing view showing animated progress messages as they stream in, retro terminal-style aesthetic with blinking cursor, elapsed time counter
