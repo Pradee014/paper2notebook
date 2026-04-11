@@ -42,9 +42,10 @@
   - Files: backend/notebook_builder.py, frontend/components/result-view.tsx
   - Completed: 2026-04-11 — notebook_builder.py with nbformat assembly (Python 3 kernel, validated), base64-encoded .ipynb in SSE complete event, ResultView with download button (blob URL), cell count summary, "New Notebook" reset
 
-- [ ] Task 9: Add "Open in Colab" functionality (P1)
+- [x] Task 9: Add "Open in Colab" functionality (P1)
   - Acceptance: Result page shows "Open in Colab" button, clicking it opens the notebook in Google Colab (via base64 data URI or Gist upload approach), notebook loads and runs in Colab
   - Files: frontend/components/colab-button.tsx, frontend/lib/colab.ts
+  - Completed: 2026-04-11 — colab.ts utility builds Colab URL with base64 data URI, yellow-bordered "Open in Colab" link in result view (target=_blank), fallback for large notebooks, integrated alongside download button
 
 - [ ] Task 10: UI polish — animations, transitions, error states, and responsive design (P1)
   - Acceptance: Smooth page transitions between states (input → processing → result), error messages styled consistently, works on mobile/tablet, loading skeletons where appropriate, dashed yellow separator lines between sections (ARC Prize style)

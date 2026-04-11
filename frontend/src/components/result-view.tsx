@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+import { buildColabUrl } from "@/lib/colab";
 
 interface NotebookData {
   cells: Array<{ cell_type: string; source: string }>;
@@ -19,6 +20,11 @@ export function ResultView({ notebook, onNewNotebook }: ResultViewProps) {
   const codeCount = notebook.cells.filter(
     (c) => c.cell_type === "code"
   ).length;
+
+  const colabUrl = useMemo(() => {
+    if (!notebook.ipynb_base64) return null;
+    return buildColabUrl(notebook.ipynb_base64);
+  }, [notebook.ipynb_base64]);
 
   const handleDownload = useCallback(() => {
     if (!notebook.ipynb_base64) return;
@@ -68,15 +74,27 @@ export function ResultView({ notebook, onNewNotebook }: ResultViewProps) {
             Download .ipynb
           </button>
 
-          <button
-            data-testid="new-notebook-button"
-            type="button"
-            onClick={onNewNotebook}
-            className="flex-1 py-3 rounded font-bold uppercase tracking-wider text-sm border border-border text-foreground/70 hover:border-accent-yellow hover:text-foreground transition-colors"
-          >
-            New Notebook
-          </button>
+          {colabUrl && (
+            <a
+              data-testid="colab-button"
+              href={colabUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 py-3 rounded font-bold uppercase tracking-wider text-sm border border-accent-yellow text-accent-yellow hover:bg-accent-yellow/10 transition-colors text-center"
+            >
+              Open in Colab
+            </a>
+          )}
         </div>
+
+        <button
+          data-testid="new-notebook-button"
+          type="button"
+          onClick={onNewNotebook}
+          className="w-full mt-3 py-3 rounded font-bold uppercase tracking-wider text-sm border border-border text-foreground/70 hover:border-accent-yellow hover:text-foreground transition-colors"
+        >
+          New Notebook
+        </button>
       </div>
     </div>
   );
