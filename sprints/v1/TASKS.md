@@ -17,9 +17,10 @@
   - Files: frontend/components/api-key-input.tsx, frontend/components/pdf-upload.tsx, frontend/app/page.tsx
   - Completed: 2026-04-11 — API key input with show/hide toggle, drag-and-drop PDF upload zone with file validation (type + 50MB limit), generate button enabled only when both inputs provided, "Remove" to clear file
 
-- [ ] Task 4: Implement backend PDF upload and text extraction endpoint (P0)
+- [x] Task 4: Implement backend PDF upload and text extraction endpoint (P0)
   - Acceptance: POST `/api/generate` accepts multipart form (PDF + API key), extracts full text from PDF using PyMuPDF, returns extracted text or error with proper status codes
   - Files: backend/main.py, backend/pdf_parser.py
+  - Completed: 2026-04-11 — POST /api/extract endpoint with PyMuPDF text extraction, validates PDF type/size/parsability, returns {text, pages}, proper HTTP error codes for all failure modes
 
 - [ ] Task 5: Implement OpenAI GPT-5.4 notebook generation with structured prompt (P0)
   - Acceptance: Backend sends extracted paper text to GPT-5.4 with a detailed system prompt, receives structured notebook content (markdown cells + code cells with synthetic data), handles API errors gracefully
