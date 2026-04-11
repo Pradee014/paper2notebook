@@ -22,9 +22,10 @@
   - Files: backend/pdf_parser.py or backend/main.py, backend/tests/
   - Completed: 2026-04-11 — Added _validate_pdf_contents() checking %PDF magic bytes, 1KB min size, 50MB max size. Both endpoints use it. 7 new tests (txt/html/exe renamed to pdf, tiny file, both endpoints). 52 backend tests passing.
 
-- [ ] Task 5: Implement prompt injection input defenses — sanitization and hardened prompt structure (P0)
+- [x] Task 5: Implement prompt injection input defenses — sanitization and hardened prompt structure (P0)
   - Acceptance: New `sanitize_text()` function strips null bytes, control characters, and truncates to 100K chars. System prompt includes explicit anti-injection instructions. User prompt wraps paper text in XML-style delimiters with post-content instruction anchor. Unit tests cover sanitization edge cases.
   - Files: backend/prompts.py, backend/sanitizer.py (new), backend/tests/
+  - Completed: 2026-04-11 — Created sanitizer.py with sanitize_text() (null byte/control char stripping, unicode cleanup, 100K truncation, whitespace normalization). Hardened prompts.py: system prompt has anti-injection clause, user prompt uses <paper-content> XML delimiters with post-content anchor. main.py wired to sanitize before LLM call. 22 new tests (15 sanitizer + 7 prompt), 74 total passing.
 
 - [ ] Task 6: Implement prompt injection output defenses — notebook safety validation (P0)
   - Acceptance: New `validate_notebook_safety()` scans code cells for dangerous patterns (`os.system`, `subprocess`, `eval`, `exec`, `__import__`, network calls to hardcoded URLs). Returns a list of warnings per cell. Warnings are included in the SSE `complete` event so frontend can display them. Tests cover detection of each pattern.

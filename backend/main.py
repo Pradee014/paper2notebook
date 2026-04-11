@@ -11,6 +11,7 @@ from sse_starlette.sse import EventSourceResponse
 from pdf_parser import extract_text_from_pdf
 from notebook_generator import generate_notebook_content
 from prompts import build_system_prompt, build_user_prompt
+from sanitizer import sanitize_text
 
 app = FastAPI(
     title="Paper2Notebook API",
@@ -149,7 +150,7 @@ async def generate_notebook(
             yield {"event": "error", "data": json.dumps({"message": str(e)})}
             return
 
-        paper_text = result["text"]
+        paper_text = sanitize_text(result["text"])
         page_count = result["pages"]
 
         yield {
