@@ -59,6 +59,21 @@ PROVIDER_CONFIG = {
 }
 
 
+MIN_FILE_SIZE = 1024  # 1 KB — anything smaller is not a real paper PDF
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+PDF_MAGIC_BYTES = b"%PDF"
+
+
+def _validate_pdf_contents(contents: bytes) -> None:
+    """Validate uploaded file is a real PDF by checking magic bytes and size."""
+    if len(contents) < MIN_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File is too small to be a valid PDF")
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File exceeds 50 MB limit")
+    if not contents[:4].startswith(PDF_MAGIC_BYTES):
+        raise HTTPException(status_code=400, detail="File is not a valid PDF (invalid file signature)")
+
+
 def _extract_api_key(authorization: str | None) -> str:
     """Extract API key from Authorization: Bearer <key> header."""
     if not authorization:
@@ -94,9 +109,7 @@ async def extract_pdf(
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
 
     contents = await file.read()
-
-    if len(contents) > 50 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File exceeds 50 MB limit")
+    _validate_pdf_contents(contents)
 
     try:
         result = extract_text_from_pdf(contents)
@@ -123,9 +136,7 @@ async def generate_notebook(
         raise HTTPException(status_code=400, detail="Only PDF files are accepted")
 
     contents = await file.read()
-
-    if len(contents) > 50 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File exceeds 50 MB limit")
+    _validate_pdf_contents(contents)
 
     async def event_stream():
         # Step 1: Extract text

@@ -17,9 +17,10 @@
   - Files: backend/main.py, frontend/src/hooks/use-generation-stream.ts, backend/tests/, frontend/tests/
   - Completed: 2026-04-11 — Added _extract_api_key() helper for Bearer token parsing. Both endpoints now read from Authorization header. Frontend sends key in header. 7 new auth tests + 8 existing tests updated. 45 backend + 4 unit + 38 E2E all passing.
 
-- [ ] Task 4: Add PDF magic byte validation and content-type verification (P0)
+- [x] Task 4: Add PDF magic byte validation and content-type verification (P0)
   - Acceptance: Backend checks uploaded file starts with `%PDF` magic bytes before processing. Rejects files that pass extension check but are not valid PDFs. Test with a `.txt` file renamed to `.pdf`. Minimum file size enforced (1KB).
   - Files: backend/pdf_parser.py or backend/main.py, backend/tests/
+  - Completed: 2026-04-11 — Added _validate_pdf_contents() checking %PDF magic bytes, 1KB min size, 50MB max size. Both endpoints use it. 7 new tests (txt/html/exe renamed to pdf, tiny file, both endpoints). 52 backend tests passing.
 
 - [ ] Task 5: Implement prompt injection input defenses — sanitization and hardened prompt structure (P0)
   - Acceptance: New `sanitize_text()` function strips null bytes, control characters, and truncates to 100K chars. System prompt includes explicit anti-injection instructions. User prompt wraps paper text in XML-style delimiters with post-content instruction anchor. Unit tests cover sanitization edge cases.
