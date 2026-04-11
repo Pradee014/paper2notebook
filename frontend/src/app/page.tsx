@@ -35,15 +35,15 @@ export default function Home() {
       data-testid="main-content"
       className="flex flex-col flex-1 items-center"
     >
-      <div className="w-full max-w-2xl px-6 py-16 flex flex-col items-center">
+      <div className="w-full max-w-2xl px-6 py-12 md:py-16 flex flex-col items-center">
         <h1
-          className="text-4xl md:text-5xl font-bold text-accent-yellow uppercase tracking-wider text-center"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-yellow uppercase tracking-wider text-center"
           data-testid="app-title"
         >
           Paper2Notebook
         </h1>
         <p
-          className="mt-4 text-base md:text-lg text-foreground/60 text-center max-w-xl"
+          className="mt-3 md:mt-4 text-sm sm:text-base md:text-lg text-foreground/60 text-center max-w-xl"
           data-testid="hero-tagline"
         >
           Convert any research paper into a structured, runnable Jupyter notebook
@@ -53,7 +53,10 @@ export default function Home() {
         <Separator />
 
         {showInput && (
-          <div data-testid="input-form" className="w-full flex flex-col gap-6">
+          <div
+            data-testid="input-form"
+            className="w-full flex flex-col gap-5 md:gap-6 animate-fade-in"
+          >
             <ApiKeyInput value={apiKey} onChange={setApiKey} />
             <PdfUpload file={file} onFileChange={setFile} />
 
@@ -62,7 +65,7 @@ export default function Home() {
               type="button"
               disabled={!canGenerate}
               onClick={handleGenerate}
-              className="w-full py-3 rounded font-bold uppercase tracking-wider text-sm transition-colors bg-accent-magenta text-foreground hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded font-bold uppercase tracking-wider text-sm transition-all bg-accent-magenta text-foreground hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.98]"
             >
               Generate Notebook
             </button>
@@ -70,20 +73,43 @@ export default function Home() {
         )}
 
         {showProcessing && (
-          <ProcessingView
-            messages={messages}
-            error={error}
-            onRetry={handleRetry}
-          />
+          <div className="w-full animate-fade-in">
+            <ProcessingView
+              messages={messages}
+              error={error}
+              onRetry={handleRetry}
+            />
+          </div>
         )}
 
         {showResult && (
-          <ResultView
-            notebook={notebook as { cells: Array<{ cell_type: string; source: string }>; ipynb_base64?: string }}
-            onNewNotebook={handleRetry}
-          />
+          <div className="w-full animate-fade-in">
+            <ResultView
+              notebook={
+                notebook as {
+                  cells: Array<{ cell_type: string; source: string }>;
+                  ipynb_base64?: string;
+                }
+              }
+              onNewNotebook={handleRetry}
+            />
+          </div>
         )}
       </div>
+
+      <footer
+        data-testid="site-footer"
+        className="w-full border-t border-border mt-auto"
+      >
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <span className="text-xs text-muted">
+            Paper2Notebook — research paper replication accelerator
+          </span>
+          <span className="text-xs text-foreground/20">
+            GPT-5.4
+          </span>
+        </div>
+      </footer>
     </main>
   );
 }

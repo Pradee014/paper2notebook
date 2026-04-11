@@ -27,8 +27,8 @@ export function ProcessingView({ messages, error, onRetry }: ProcessingViewProps
 
   if (error) {
     return (
-      <div data-testid="processing-view" className="w-full">
-        <div className="bg-surface border border-border rounded-lg p-6">
+      <div data-testid="processing-view" className="w-full animate-fade-in">
+        <div className="bg-surface border border-border rounded-lg p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-accent-magenta text-lg">&#x2717;</span>
             <span className="text-xs uppercase tracking-wider text-accent-magenta">
@@ -55,8 +55,8 @@ export function ProcessingView({ messages, error, onRetry }: ProcessingViewProps
   }
 
   return (
-    <div data-testid="processing-view" className="w-full">
-      <div className="bg-surface border border-border rounded-lg p-6">
+    <div data-testid="processing-view" className="w-full animate-fade-in">
+      <div className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4">
           <span className="text-xs uppercase tracking-wider text-accent-yellow">
             Generating notebook...

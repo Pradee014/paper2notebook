@@ -1,6 +1,6 @@
 # Sprint v1 - Tasks
 
-## Status: In Progress
+## Status: Complete
 
 - [x] Task 1: Initialize monorepo with Next.js frontend and FastAPI backend (P0)
   - Acceptance: `npm run dev` starts frontend on :3000, `uvicorn` starts backend on :8000, CORS configured between them
@@ -47,6 +47,7 @@
   - Files: frontend/components/colab-button.tsx, frontend/lib/colab.ts
   - Completed: 2026-04-11 — colab.ts utility builds Colab URL with base64 data URI, yellow-bordered "Open in Colab" link in result view (target=_blank), fallback for large notebooks, integrated alongside download button
 
-- [ ] Task 10: UI polish — animations, transitions, error states, and responsive design (P1)
+- [x] Task 10: UI polish — animations, transitions, error states, and responsive design (P1)
   - Acceptance: Smooth page transitions between states (input → processing → result), error messages styled consistently, works on mobile/tablet, loading skeletons where appropriate, dashed yellow separator lines between sections (ARC Prize style)
   - Files: frontend/components/*.tsx (various updates), frontend/app/globals.css
+  - Completed: 2026-04-11 — Fade-in animations on all view transitions, responsive text sizing (3xl→5xl), mobile padding adjustments, footer with tagline, focus-visible rings, active:scale button press, consistent p-4/p-6 responsive padding

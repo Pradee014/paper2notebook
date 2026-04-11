@@ -46,8 +46,8 @@ export function ResultView({ notebook, onNewNotebook }: ResultViewProps) {
   }, [notebook.ipynb_base64]);
 
   return (
-    <div data-testid="result-view" className="w-full">
-      <div className="bg-surface border border-border rounded-lg p-6">
+    <div data-testid="result-view" className="w-full animate-fade-in">
+      <div className="bg-surface border border-border rounded-lg p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-accent-yellow text-lg">&#x2713;</span>
           <span className="text-xs uppercase tracking-wider text-accent-yellow">
