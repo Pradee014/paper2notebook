@@ -12,9 +12,10 @@
   - Files: frontend/app/layout.tsx, frontend/app/globals.css, frontend/app/page.tsx, frontend/components/header.tsx
   - Completed: 2026-04-11 — Dark theme (#0a0a0a), Space Mono font, yellow/magenta accents, header with brand, dashed yellow separator, responsive layout, blinking cursor animation, magenta text selection
 
-- [ ] Task 3: Build the landing page with API key input and PDF upload zone (P0)
+- [x] Task 3: Build the landing page with API key input and PDF upload zone (P0)
   - Acceptance: Page shows hero text, API key input field (masked, stored in state only), drag-and-drop PDF upload zone with file validation (PDF only, max 50MB), upload triggers processing flow
   - Files: frontend/components/api-key-input.tsx, frontend/components/pdf-upload.tsx, frontend/app/page.tsx
+  - Completed: 2026-04-11 — API key input with show/hide toggle, drag-and-drop PDF upload zone with file validation (type + 50MB limit), generate button enabled only when both inputs provided, "Remove" to clear file
 
 - [ ] Task 4: Implement backend PDF upload and text extraction endpoint (P0)
   - Acceptance: POST `/api/generate` accepts multipart form (PDF + API key), extracts full text from PDF using PyMuPDF, returns extracted text or error with proper status codes

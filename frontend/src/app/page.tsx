@@ -1,12 +1,22 @@
+"use client";
+
+import { useState } from "react";
 import { Separator } from "@/components/separator";
+import { ApiKeyInput } from "@/components/api-key-input";
+import { PdfUpload } from "@/components/pdf-upload";
 
 export default function Home() {
+  const [apiKey, setApiKey] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+
+  const canGenerate = apiKey.trim().length > 0 && file !== null;
+
   return (
     <main
       data-testid="main-content"
       className="flex flex-col flex-1 items-center"
     >
-      <div className="w-full max-w-5xl px-6 py-16 flex flex-col items-center">
+      <div className="w-full max-w-2xl px-6 py-16 flex flex-col items-center">
         <h1
           className="text-4xl md:text-5xl font-bold text-accent-yellow uppercase tracking-wider text-center"
           data-testid="app-title"
@@ -20,7 +30,22 @@ export default function Home() {
           Convert any research paper into a structured, runnable Jupyter notebook
           — powered by GPT-5.4
         </p>
+
         <Separator />
+
+        <div className="w-full flex flex-col gap-6">
+          <ApiKeyInput value={apiKey} onChange={setApiKey} />
+          <PdfUpload file={file} onFileChange={setFile} />
+
+          <button
+            data-testid="generate-button"
+            type="button"
+            disabled={!canGenerate}
+            className="w-full py-3 rounded font-bold uppercase tracking-wider text-sm transition-colors bg-accent-magenta text-foreground hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            Generate Notebook
+          </button>
+        </div>
       </div>
     </main>
   );
