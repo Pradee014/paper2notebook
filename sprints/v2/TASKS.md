@@ -52,9 +52,10 @@
   - Files: frontend/src/lib/schemas.ts (new), frontend/src/hooks/use-generation-stream.ts, frontend/package.json, frontend/tests/
   - Completed: 2026-04-11 — Created schemas.ts with NotebookCompleteSchema (cells, ipynb_base64, safety_warnings), SSEErrorSchema, SafetyWarningSchema. handleEvent() validates complete/error payloads via safeParse. Invalid data triggers user-friendly error. Zod ~3.25.23 added. 12 new unit tests, 16 total unit + 4 E2E passing.
 
-- [ ] Task 11: Add generation history with localStorage (P1)
+- [x] Task 11: Add generation history with localStorage (P1)
   - Acceptance: After successful generation, notebook metadata (timestamp, first markdown cell title, cell count, ipynb_base64) is saved to localStorage. New history panel below main content shows past generations (max 20). User can re-download any past notebook. "Clear history" button available. History persists across page refreshes.
   - Files: frontend/src/lib/history.ts (new), frontend/src/components/history-panel.tsx (new), frontend/src/app/page.tsx, frontend/tests/
+  - Completed: 2026-04-11 — Created history.ts (saveToHistory, loadHistory, deleteFromHistory, clearHistory, max 20 entries, title extraction from first markdown cell). Created history-panel.tsx with entries list, download per entry, clear all button. Wired into page.tsx: auto-save on completion, show panel on input screen when history exists. 12 unit + 5 E2E new tests, 28 unit + 43 E2E total passing.
 
 - [ ] Task 12: Update all tests for v2 security changes and add security-focused test cases (P1)
   - Acceptance: All existing tests updated to work with new auth header, removed Colab references, etc. New tests added: malformed PDF rejection, oversized input handling, rate limit verification, sanitizer edge cases, output validator coverage. Full test suite passes (`pytest` + `vitest` + `playwright`).

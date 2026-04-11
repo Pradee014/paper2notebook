@@ -1,18 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Separator } from "@/components/separator";
-import { ApiKeyInput } from "@/components/api-key-input";
+import { ApiKeyInput, Provider } from "@/components/api-key-input";
 import { PdfUpload } from "@/components/pdf-upload";
 import { ProcessingView } from "@/components/processing-view";
 import { ResultView } from "@/components/result-view";
+import { HistoryPanel } from "@/components/history-panel";
 import { useGenerationStream } from "@/hooks/use-generation-stream";
+import { saveToHistory, loadHistory, type HistoryEntry } from "@/lib/history";
 
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
+  const [provider, setProvider] = useState<Provider>("openai");
   const [file, setFile] = useState<File | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const { status, messages, notebook, error, generate, reset } =
     useGenerationStream();
+
+  // Load history from localStorage on mount
+  useEffect(() => {
+    setHistory(loadHistory());
+  }, []);
+
+  // Save to history when generation completes
+  useEffect(() => {
+    if (status === "complete" && notebook) {
+      saveToHistory(notebook as { cells: Array<{ cell_type: string; source: string }>; ipynb_base64?: string });
+      setHistory(loadHistory());
+    }
+  }, [status, notebook]);
+
+  const refreshHistory = useCallback(() => {
+    setHistory(loadHistory());
+  }, []);
 
   const canGenerate = apiKey.trim().length > 0 && file !== null;
   const showInput = status === "idle";
@@ -22,7 +43,7 @@ export default function Home() {
 
   const handleGenerate = () => {
     if (canGenerate && file) {
-      generate(apiKey, file);
+      generate(apiKey, file, provider);
     }
   };
 
@@ -47,7 +68,7 @@ export default function Home() {
           data-testid="hero-tagline"
         >
           Convert any research paper into a structured, runnable Jupyter notebook
-          — powered by GPT-5.4
+          — powered by AI
         </p>
 
         <Separator />
@@ -57,7 +78,7 @@ export default function Home() {
             data-testid="input-form"
             className="w-full flex flex-col gap-5 md:gap-6 animate-fade-in"
           >
-            <ApiKeyInput value={apiKey} onChange={setApiKey} />
+            <ApiKeyInput value={apiKey} onChange={setApiKey} provider={provider} onProviderChange={setProvider} />
             <PdfUpload file={file} onFileChange={setFile} />
 
             <button
@@ -69,6 +90,13 @@ export default function Home() {
             >
               Generate Notebook
             </button>
+
+            {history.length > 0 && (
+              <div className="mt-4">
+                <Separator />
+                <HistoryPanel entries={history} onClear={refreshHistory} />
+              </div>
+            )}
           </div>
         )}
 
@@ -106,7 +134,7 @@ export default function Home() {
             Paper2Notebook — research paper replication accelerator
           </span>
           <span className="text-xs text-foreground/20">
-            GPT-5.4
+            GPT-5.4 / Gemini
           </span>
         </div>
       </footer>
