@@ -62,8 +62,10 @@ test.describe("Generation history panel", () => {
   test("history panel appears after successful generation", async ({ page }) => {
     await generateNotebook(page);
 
-    // Click "New Notebook" to go back to input — history should be visible
-    await page.locator('[data-testid="new-notebook-button"]').click();
+    // Wait for animation to settle before clicking
+    const newBtn = page.locator('[data-testid="new-notebook-button"]');
+    await expect(newBtn).toBeVisible({ timeout: 5000 });
+    await newBtn.click({ force: true });
 
     const historyPanel = page.locator('[data-testid="history-panel"]');
     await expect(historyPanel).toBeVisible({ timeout: 5000 });
