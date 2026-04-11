@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import { API_URL } from "@/lib/config";
+import { NotebookCompleteSchema, SSEErrorSchema } from "@/lib/schemas";
 
 export type GenerationStatus = "idle" | "uploading" | "processing" | "complete" | "error";
 
@@ -122,11 +123,20 @@ function handleEvent(
     }));
   } else if (event === "complete") {
     try {
-      const notebook = JSON.parse(data);
+      const raw = JSON.parse(data);
+      const result = NotebookCompleteSchema.safeParse(raw);
+      if (!result.success) {
+        setState((prev) => ({
+          ...prev,
+          status: "error",
+          error: "Received invalid notebook data from the server",
+        }));
+        return;
+      }
       setState((prev) => ({
         ...prev,
         status: "complete",
-        notebook,
+        notebook: result.data,
         messages: [...prev.messages, "Notebook ready!"],
       }));
     } catch {
@@ -138,11 +148,12 @@ function handleEvent(
     }
   } else if (event === "error") {
     try {
-      const errData = JSON.parse(data);
+      const raw = JSON.parse(data);
+      const result = SSEErrorSchema.safeParse(raw);
       setState((prev) => ({
         ...prev,
         status: "error",
-        error: errData.message || "Generation failed",
+        error: result.success ? result.data.message : "Generation failed",
       }));
     } catch {
       setState((prev) => ({

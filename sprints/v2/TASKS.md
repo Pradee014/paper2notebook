@@ -47,9 +47,10 @@
   - Files: backend/requirements.txt, frontend/package.json
   - Completed: 2026-04-11 — All 11 Python deps pinned with upper bounds (e.g., openai>=1.60.0,<2.0.0). Frontend: ^ ranges replaced with ~ (tilde) for patch-level updates only, devDeps pinned to specific minor versions. 2 new tests enforce pinning policy. 106 backend + 4 unit all passing.
 
-- [ ] Task 10: Add Zod schema validation for all frontend API responses (P1)
+- [x] Task 10: Add Zod schema validation for all frontend API responses (P1)
   - Acceptance: Zod schemas defined for SSE event payloads (progress, complete, error). `use-generation-stream.ts` validates parsed JSON through Zod before storing in state. Invalid responses trigger a user-friendly error. Zod added to package.json. Unit tests cover valid and invalid payloads.
   - Files: frontend/src/lib/schemas.ts (new), frontend/src/hooks/use-generation-stream.ts, frontend/package.json, frontend/tests/
+  - Completed: 2026-04-11 — Created schemas.ts with NotebookCompleteSchema (cells, ipynb_base64, safety_warnings), SSEErrorSchema, SafetyWarningSchema. handleEvent() validates complete/error payloads via safeParse. Invalid data triggers user-friendly error. Zod ~3.25.23 added. 12 new unit tests, 16 total unit + 4 E2E passing.
 
 - [ ] Task 11: Add generation history with localStorage (P1)
   - Acceptance: After successful generation, notebook metadata (timestamp, first markdown cell title, cell count, ipynb_base64) is saved to localStorage. New history panel below main content shows past generations (max 20). User can re-download any past notebook. "Clear history" button available. History persists across page refreshes.
