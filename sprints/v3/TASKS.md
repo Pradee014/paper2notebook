@@ -32,9 +32,10 @@
   - Files: Dockerfile.backend (new), backend/requirements.txt (split prod/dev if needed)
   - Completed: 2026-04-16 — Created Dockerfile.backend (python:3.12-slim, non-root appuser, EXPOSE 8000, uvicorn CMD). Created requirements-prod.txt with prod-only deps (no pytest/httpx/pytest-asyncio). Updated main.py to read CORS_ORIGINS from env var (comma-separated, defaults to localhost:3000). 7 new validation tests. 151 total backend tests passing. Semgrep clean. Docker daemon not running so live build deferred.
 
-- [ ] Task 7: Frontend Dockerfile with Next.js standalone (P0)
+- [x] Task 7: Frontend Dockerfile with Next.js standalone (P0)
   - Acceptance: `Dockerfile.frontend` builds a production image using Next.js standalone output mode. Multi-stage build: (1) install deps, (2) build with `next build`, (3) copy standalone output to slim `node:20-alpine` runtime image. Supports `NEXT_PUBLIC_API_URL` build arg. Image builds with `docker build -f Dockerfile.frontend -t p2n-frontend .`. Container serves the app on port 3000. Non-root user.
   - Files: Dockerfile.frontend (new), frontend/next.config.ts (add `output: "standalone"`)
+  - Completed: 2026-04-16 — Created 3-stage Dockerfile.frontend: deps (npm ci), builder (next build with NEXT_PUBLIC_API_URL ARG), runner (node:20-alpine, nextjs user, standalone output, port 3000). Added output: "standalone" to next.config.ts. Excluded tests/quality/ from vitest to fix Playwright import conflict. 8 new validation tests. 159 backend + 28 unit all passing. Semgrep clean.
 
 - [ ] Task 8: docker-compose.yml for local multi-container setup (P0)
   - Acceptance: `docker-compose.yml` at project root orchestrates backend and frontend. Backend on port 8000, frontend on port 3000. Frontend's `NEXT_PUBLIC_API_URL` points to `http://localhost:8000`. Backend's `CORS_ORIGINS` includes `http://localhost:3000`. `docker compose up --build` starts both services and the app is usable at `http://localhost:3000`. Health check configured for backend.
