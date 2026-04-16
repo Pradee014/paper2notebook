@@ -4,16 +4,21 @@ import { useState, useEffect, useCallback } from "react";
 import { Separator } from "@/components/separator";
 import { ApiKeyInput, Provider } from "@/components/api-key-input";
 import { PdfUpload } from "@/components/pdf-upload";
+import { ArxivInput } from "@/components/arxiv-input";
 import { ProcessingView } from "@/components/processing-view";
 import { ResultView } from "@/components/result-view";
 import { HistoryPanel } from "@/components/history-panel";
 import { useGenerationStream } from "@/hooks/use-generation-stream";
 import { saveToHistory, loadHistory, type HistoryEntry } from "@/lib/history";
 
+export type InputMode = "pdf" | "arxiv";
+
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
   const [provider, setProvider] = useState<Provider>("openai");
+  const [inputMode, setInputMode] = useState<InputMode>("pdf");
   const [file, setFile] = useState<File | null>(null);
+  const [arxivUrl, setArxivUrl] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const { status, messages, notebook, error, generate, reset } =
     useGenerationStream();
@@ -35,15 +40,20 @@ export default function Home() {
     setHistory(loadHistory());
   }, []);
 
-  const canGenerate = apiKey.trim().length > 0 && file !== null;
+  const canGenerate =
+    apiKey.trim().length > 0 &&
+    (inputMode === "pdf" ? file !== null : arxivUrl.trim().length > 0);
   const showInput = status === "idle";
   const showProcessing =
     status === "uploading" || status === "processing" || status === "error";
   const showResult = status === "complete" && notebook !== null;
 
   const handleGenerate = () => {
-    if (canGenerate && file) {
+    if (!canGenerate) return;
+    if (inputMode === "pdf" && file) {
       generate(apiKey, file, provider);
+    } else if (inputMode === "arxiv" && arxivUrl.trim()) {
+      generate(apiKey, null, provider, arxivUrl.trim());
     }
   };
 
@@ -79,7 +89,42 @@ export default function Home() {
             className="w-full flex flex-col gap-5 md:gap-6 animate-fade-in"
           >
             <ApiKeyInput value={apiKey} onChange={setApiKey} provider={provider} onProviderChange={setProvider} />
-            <PdfUpload file={file} onFileChange={setFile} />
+
+            {/* Input mode tabs */}
+            <div className="flex rounded border border-border overflow-hidden self-start">
+              <button
+                type="button"
+                data-testid="input-tab-pdf"
+                data-active={inputMode === "pdf" ? "true" : "false"}
+                onClick={() => setInputMode("pdf")}
+                className={`px-4 py-1.5 text-xs uppercase tracking-wider transition-colors ${
+                  inputMode === "pdf"
+                    ? "bg-accent-yellow text-background font-bold"
+                    : "text-muted hover:text-foreground"
+                }`}
+              >
+                Upload PDF
+              </button>
+              <button
+                type="button"
+                data-testid="input-tab-arxiv"
+                data-active={inputMode === "arxiv" ? "true" : "false"}
+                onClick={() => setInputMode("arxiv")}
+                className={`px-4 py-1.5 text-xs uppercase tracking-wider transition-colors ${
+                  inputMode === "arxiv"
+                    ? "bg-accent-yellow text-background font-bold"
+                    : "text-muted hover:text-foreground"
+                }`}
+              >
+                arXiv URL
+              </button>
+            </div>
+
+            {inputMode === "pdf" ? (
+              <PdfUpload file={file} onFileChange={setFile} />
+            ) : (
+              <ArxivInput value={arxivUrl} onChange={setArxivUrl} />
+            )}
 
             <button
               data-testid="generate-button"

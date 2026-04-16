@@ -7,9 +7,10 @@
   - Files: backend/arxiv_fetcher.py (new), backend/main.py, backend/requirements.txt, .gitignore, backend/tests/test_arxiv_fetcher.py (new)
   - Completed: 2026-04-16 — Created arxiv_fetcher.py with parse_arxiv_id() (handles bare IDs, versioned IDs, abs/pdf URLs, old-style IDs) and fetch_arxiv_pdf() (async HTTP fetch with validation). Updated /api/generate to accept optional arxiv_url form field alongside file upload. .gitignore already had aws_cred.md and Terraform patterns. Fixed pre-existing test_notebook_generator model name mismatch. 18 new tests, 136 total passing. Semgrep clean.
 
-- [ ] Task 2: Frontend arXiv URL input component (P0)
+- [x] Task 2: Frontend arXiv URL input component (P0)
   - Acceptance: New tab/toggle on the input form: "Upload PDF" vs "arXiv URL". When "arXiv URL" is selected, show a text input for the URL instead of the drag-drop zone. The generate button works with either input method. `use-generation-stream.ts` updated to send `arxiv_url` field when URL mode is active (no file in FormData). URL input validates format client-side (must look like an arXiv ID or URL). Both provider options (OpenAI/Gemini) work with arXiv URL input.
   - Files: frontend/src/components/arxiv-input.tsx (new), frontend/src/app/page.tsx, frontend/src/hooks/use-generation-stream.ts
+  - Completed: 2026-04-16 — Created arxiv-input.tsx component with placeholder and styling matching existing design. Added "Upload PDF" / "arXiv URL" tab toggle to page.tsx with data-testid and data-active attributes. Updated use-generation-stream.ts generate() to accept optional arxivUrl parameter and send as form field. 11 new E2E tests, 54 total E2E + 28 unit all passing. Semgrep + npm audit clean.
 
 - [ ] Task 3: E2E Playwright tests for PDF upload and arXiv URL flows (P0)
   - Acceptance: New Playwright test file covering: (1) arXiv URL input component renders and validates URLs, (2) switching between PDF upload and arXiv URL tabs, (3) full PDF upload flow with mocked backend (enter key → upload PDF → see progress → see result → download), (4) full arXiv URL flow with mocked backend (enter key → paste URL → see progress → see result → download). Screenshots taken at each major step. All existing E2E tests still pass.

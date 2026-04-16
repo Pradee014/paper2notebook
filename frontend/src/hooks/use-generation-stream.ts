@@ -22,12 +22,16 @@ export function useGenerationStream() {
   });
   const abortRef = useRef<AbortController | null>(null);
 
-  const generate = useCallback(async (apiKey: string, file: File, provider: string = "openai") => {
+  const generate = useCallback(async (apiKey: string, file: File | null, provider: string = "openai", arxivUrl?: string) => {
     // Reset state
     setState({ status: "uploading", messages: [], notebook: null, error: null });
 
     const formData = new FormData();
-    formData.append("file", file);
+    if (arxivUrl) {
+      formData.append("arxiv_url", arxivUrl);
+    } else if (file) {
+      formData.append("file", file);
+    }
     formData.append("provider", provider);
 
     abortRef.current = new AbortController();
