@@ -1,6 +1,6 @@
 # Sprint v3 - Tasks
 
-## Status: In Progress
+## Status: Complete
 
 - [x] Task 1: arXiv URL fetcher backend module + endpoint integration (P0)
   - Acceptance: New `backend/arxiv_fetcher.py` module that accepts an arXiv URL or ID (e.g., `2706.03762`, `https://arxiv.org/abs/1706.03762`, `https://arxiv.org/pdf/1706.03762`), downloads the PDF, validates it (magic bytes, size), and returns raw PDF bytes. `/api/generate` endpoint accepts optional `arxiv_url` form field — when provided, fetches PDF from arXiv instead of requiring file upload. Existing PDF validation (magic bytes, size limits) applies to fetched PDFs. Add `httpx` to requirements.txt for async HTTP fetching. Add `aws_cred.md` and `*.tfstate*` to `.gitignore`. Unit tests for URL parsing and fetch logic.
@@ -47,6 +47,7 @@
   - Files: infra/main.tf, infra/variables.tf, infra/outputs.tf, infra/vpc.tf, infra/ecs.tf, infra/alb.tf, infra/ecr.tf (new)
   - Completed: 2026-04-16 — Created 7 Terraform files: main.tf (AWS provider, S3 backend), variables.tf (region, image tags, CPU/memory), vpc.tf (VPC, 2 public + 2 private subnets, IGW, NAT gateway, route tables), ecr.tf (2 ECR repos, IMMUTABLE tags, scan on push), alb.tf (ALB, 2 target groups, HTTP listener, /api/* path routing), ecs.tf (ECS cluster, IAM execution role, 2 task defs, 2 services in private subnets, CloudWatch logs, security groups), outputs.tf (ALB DNS, ECR URLs, cluster/service names). ECR tags set to IMMUTABLE per semgrep. 17 new validation tests. 184 total backend tests passing.
 
-- [ ] Task 10: GitHub Actions CD pipeline — auto-deploy to AWS (P0)
+- [x] Task 10: GitHub Actions CD pipeline — auto-deploy to AWS (P0)
   - Acceptance: `.github/workflows/cd.yml` triggers on push to `main` after CI passes. Steps: (1) build backend and frontend Docker images, (2) authenticate to AWS ECR using GitHub Secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`), (3) push images to ECR with commit SHA tags, (4) update ECS services to use new images (force new deployment). Workflow uses `aws-actions/configure-aws-credentials@v4` and `aws-actions/amazon-ecr-login@v2`. Documents required GitHub Secrets in workflow comments.
   - Files: .github/workflows/cd.yml (new)
+  - Completed: 2026-04-16 — Created cd.yml: triggers on push to main, configures AWS credentials from GitHub Secrets, logs into ECR, builds both Docker images with commit SHA tags, pushes to ECR, force-new-deployment on both ECS services, deployment summary in job output. Concurrency group prevents parallel deploys. 10 new validation tests. 194 total backend tests passing. Semgrep clean.
