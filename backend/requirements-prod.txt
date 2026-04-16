@@ -1,0 +1,9 @@
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.34.0,<1.0.0
+python-multipart>=0.0.18,<1.0.0
+pymupdf>=1.25.0,<2.0.0
+nbformat>=5.10.0,<6.0.0
+openai>=1.60.0,<2.0.0
+sse-starlette>=2.2.0,<4.0.0
+slowapi>=0.1.9,<1.0.0
+httpx>=0.28.0,<1.0.0
