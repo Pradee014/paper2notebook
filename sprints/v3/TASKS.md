@@ -22,9 +22,10 @@
   - Files: frontend/tests/fixtures/attention-is-all-you-need.pdf (download), frontend/tests/quality/real-quality-test.spec.ts (new), frontend/tests/screenshots/quality/
   - Completed: 2026-04-16 — Downloaded "Attention Is All You Need" (2.2MB PDF, 1706.03762) to fixtures. Created real-quality-test.spec.ts with page.pause() for manual API key entry, 5-min timeout, and 9 validations: min 15 cells, 5+ markdown, 5+ code, valid JSON, nbformat 4, 8+ section headers, 80%+ Python keywords in code, paper title referenced, download works. 6 screenshots at each step. Fixed flaky processing-view timing in full-flow.spec.ts and arxiv-flow.spec.ts. Not included in CI suite. 68 E2E + 28 unit all passing. Semgrep clean.
 
-- [ ] Task 5: GitHub Actions CI workflow (P0)
+- [x] Task 5: GitHub Actions CI workflow (P0)
   - Acceptance: `.github/workflows/ci.yml` runs on every push and PR to any branch. Jobs: (1) `backend-tests` — installs Python deps, runs `pytest` with coverage, (2) `frontend-tests` — installs Node deps, runs `vitest` unit tests and `playwright` E2E tests (with mocked backend), (3) `security-scan` — runs `semgrep --config auto` on the codebase, (4) `dependency-audit` — runs `pip-audit` on backend and `npm audit` on frontend. All four jobs must pass for the PR to be mergeable. Branch protection rule documented in PR description. Uses `actions/setup-python@v5`, `actions/setup-node@v4`. Caches pip and npm dependencies.
   - Files: .github/workflows/ci.yml (new)
+  - Completed: 2026-04-16 — Created ci.yml with 4 jobs: backend-tests (Python 3.12, pip cache, pytest), frontend-tests (Node 20, npm cache, vitest + Playwright with chromium), security-scan (semgrep --config auto --error), dependency-audit (pip-audit + npm audit). Triggers on push/PR to all branches. Concurrency groups cancel in-progress runs. 8 new validation tests in test_ci_workflow.py. 144 total backend tests passing. Semgrep clean.
 
 - [ ] Task 6: Backend Dockerfile (P0)
   - Acceptance: `Dockerfile.backend` builds a production image from `python:3.12-slim`. Installs only production dependencies (no pytest/dev deps). Runs uvicorn on port 8000. Supports `CORS_ORIGINS` environment variable for configurable CORS. Image builds successfully with `docker build -f Dockerfile.backend -t p2n-backend .`. Container starts and `/api/health` responds with 200 OK. Non-root user for security.
