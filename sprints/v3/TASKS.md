@@ -37,9 +37,10 @@
   - Files: Dockerfile.frontend (new), frontend/next.config.ts (add `output: "standalone"`)
   - Completed: 2026-04-16 — Created 3-stage Dockerfile.frontend: deps (npm ci), builder (next build with NEXT_PUBLIC_API_URL ARG), runner (node:20-alpine, nextjs user, standalone output, port 3000). Added output: "standalone" to next.config.ts. Excluded tests/quality/ from vitest to fix Playwright import conflict. 8 new validation tests. 159 backend + 28 unit all passing. Semgrep clean.
 
-- [ ] Task 8: docker-compose.yml for local multi-container setup (P0)
+- [x] Task 8: docker-compose.yml for local multi-container setup (P0)
   - Acceptance: `docker-compose.yml` at project root orchestrates backend and frontend. Backend on port 8000, frontend on port 3000. Frontend's `NEXT_PUBLIC_API_URL` points to `http://localhost:8000`. Backend's `CORS_ORIGINS` includes `http://localhost:3000`. `docker compose up --build` starts both services and the app is usable at `http://localhost:3000`. Health check configured for backend.
   - Files: docker-compose.yml (new)
+  - Completed: 2026-04-16 — Created docker-compose.yml with backend (port 8000, CORS_ORIGINS env, healthcheck on /api/health) and frontend (port 3000, NEXT_PUBLIC_API_URL build arg, depends_on backend healthy). 8 new validation tests. 167 total backend tests passing. Semgrep clean.
 
 - [ ] Task 9: Terraform config for AWS ECS Fargate (P0)
   - Acceptance: `infra/` directory with Terraform files that provision: VPC with 2 public + 2 private subnets across 2 AZs, NAT gateway for private subnet outbound, ALB in public subnets with path-based routing (`/api/*` → backend, `/*` → frontend), 2 ECR repositories (backend + frontend), ECS cluster with Fargate, 2 ECS services (backend + frontend) with task definitions, security groups (ALB: 80 inbound, ECS: ALB-only inbound), CloudWatch log groups for both services, S3 bucket for Terraform state. Region defaults to `us-east-1`. `terraform plan` succeeds without errors. Variables for image tags so CD can update them.
