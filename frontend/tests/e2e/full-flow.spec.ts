@@ -99,12 +99,13 @@ test.describe("Full flow — PDF upload (mocked backend)", () => {
     await expect(generateBtn).toBeEnabled();
     await generateBtn.click();
 
-    // Step 5: See processing view
+    // Step 5: Wait for either processing or result (mock is instant, so
+    // the processing view may flash too fast to catch)
     const processingView = page.locator('[data-testid="processing-view"]');
-    await expect(processingView).toBeVisible({ timeout: 5000 });
-
-    // Step 6: See result view
     const resultView = page.locator('[data-testid="result-view"]');
+    await expect(processingView.or(resultView)).toBeVisible({ timeout: 10000 });
+
+    // Step 6: Wait for result view specifically
     await expect(resultView).toBeVisible({ timeout: 10000 });
 
     await page.screenshot({

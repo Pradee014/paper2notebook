@@ -118,12 +118,12 @@ test.describe("arXiv-specific flow tests", () => {
     await page.locator('[data-testid="arxiv-url-input"]').fill("1706.03762");
     await page.locator('[data-testid="generate-button"]').click();
 
-    // Should see progress messages
+    // Should see processing or result (mock is instant, processing may flash)
     const processingView = page.locator('[data-testid="processing-view"]');
-    await expect(processingView).toBeVisible({ timeout: 5000 });
+    const resultView = page.locator('[data-testid="result-view"]');
+    await expect(processingView.or(resultView)).toBeVisible({ timeout: 10000 });
 
     // Then result
-    const resultView = page.locator('[data-testid="result-view"]');
     await expect(resultView).toBeVisible({ timeout: 10000 });
 
     // Verify summary
