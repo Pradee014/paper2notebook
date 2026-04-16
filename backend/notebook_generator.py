@@ -5,23 +5,39 @@ import openai
 
 from prompts import build_system_prompt, build_user_prompt
 
-MODEL = "gpt-5.4"
+PROVIDER_CONFIG = {
+    "openai": {
+        "base_url": None,
+        "model": "gpt-4o",
+        "label": "OpenAI",
+    },
+    "gemini": {
+        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "model": "gemini-2.0-flash",
+        "label": "Gemini",
+    },
+}
 
 
 async def generate_notebook_content(
     paper_text: str,
     api_key: str,
+    provider: str = "openai",
 ) -> dict:
-    """Call OpenAI GPT-5.4 to generate structured notebook cells from paper text.
+    """Call an LLM to generate structured notebook cells from paper text.
 
     Returns dict with 'cells' list, each having 'cell_type' and 'source'.
     Raises RuntimeError on API or parsing failures.
     """
-    client = openai.AsyncOpenAI(api_key=api_key)
+    prov = PROVIDER_CONFIG.get(provider, PROVIDER_CONFIG["openai"])
+    client_kwargs = {"api_key": api_key}
+    if prov["base_url"]:
+        client_kwargs["base_url"] = prov["base_url"]
+    client = openai.AsyncOpenAI(**client_kwargs)
 
     try:
         response = await client.chat.completions.create(
-            model=MODEL,
+            model=prov["model"],
             messages=[
                 {"role": "system", "content": build_system_prompt()},
                 {"role": "user", "content": build_user_prompt(paper_text)},
@@ -30,7 +46,7 @@ async def generate_notebook_content(
             max_tokens=16000,
         )
     except Exception as e:
-        raise RuntimeError(f"OpenAI API error: {e}")
+        raise RuntimeError(f"{prov['label']} API error: {e}")
 
     raw_content = response.choices[0].message.content
 

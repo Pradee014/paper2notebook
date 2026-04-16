@@ -1,3 +1,5 @@
+import { ThemeToggle } from "./theme-toggle";
+
 export function Header() {
   return (
     <header
@@ -11,9 +13,12 @@ export function Header() {
         >
           Paper2Notebook
         </span>
-        <span className="text-foreground/40 text-xs uppercase tracking-wider">
-          v1
-        </span>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <span className="text-foreground/40 text-xs uppercase tracking-wider">
+            v1
+          </span>
+        </div>
       </div>
     </header>
   );
