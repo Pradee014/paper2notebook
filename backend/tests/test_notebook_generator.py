@@ -96,7 +96,7 @@ async def test_generate_notebook_content_uses_correct_model():
         )
 
         call_kwargs = instance.chat.completions.create.call_args[1]
-        assert call_kwargs["model"] == "gpt-5.4"
+        assert call_kwargs["model"] == "gpt-4o"
 
 
 @pytest.mark.asyncio

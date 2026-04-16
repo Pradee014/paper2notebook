@@ -15,6 +15,7 @@ from slowapi.util import get_remote_address
 from starlette.middleware.base import BaseHTTPMiddleware
 from sse_starlette.sse import EventSourceResponse
 
+from arxiv_fetcher import fetch_arxiv_pdf, ArxivFetchError
 from pdf_parser import extract_text_from_pdf
 from notebook_builder import build_notebook
 from notebook_generator import generate_notebook_content
@@ -72,12 +73,12 @@ async def health_check():
 PROVIDER_CONFIG = {
     "openai": {
         "base_url": None,
-        "model": "gpt-5.4",
+        "model": "gpt-4o",
         "label": "OpenAI",
     },
     "gemini": {
         "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
-        "model": "gemini-2.5-flash",
+        "model": "gemini-2.0-flash",
         "label": "Gemini",
     },
 }
@@ -151,7 +152,8 @@ async def extract_pdf(
 @limiter.limit("5/minute")
 async def generate_notebook(
     request: Request,
-    file: UploadFile = File(...),
+    file: UploadFile | None = File(None),
+    arxiv_url: str | None = Form(None),
     provider: str = Form("openai"),
     authorization: str | None = Header(None),
 ):
@@ -161,16 +163,26 @@ async def generate_notebook(
 
     prov = PROVIDER_CONFIG[provider]
 
-    # Validate file type before starting SSE stream
-    if not file.filename or not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are accepted")
+    # Determine PDF source: file upload or arXiv URL
+    if arxiv_url and arxiv_url.strip():
+        try:
+            contents = await fetch_arxiv_pdf(arxiv_url.strip())
+        except ArxivFetchError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        _validate_pdf_contents(contents)
+    elif file and file.filename:
+        if not file.filename.lower().endswith(".pdf"):
+            raise HTTPException(status_code=400, detail="Only PDF files are accepted")
+        contents = await file.read()
+        _validate_pdf_contents(contents)
+    else:
+        raise HTTPException(status_code=400, detail="Provide either a PDF file or an arXiv URL")
 
-    contents = await file.read()
-    _validate_pdf_contents(contents)
+    source_label = f"arXiv ({arxiv_url.strip()})" if (arxiv_url and arxiv_url.strip()) else "uploaded PDF"
 
     async def event_stream():
         # Step 1: Extract text
-        yield {"event": "progress", "data": "Extracting text from PDF..."}
+        yield {"event": "progress", "data": f"Extracting text from {source_label}..."}
         await asyncio.sleep(0)
 
         try:

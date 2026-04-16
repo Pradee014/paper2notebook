@@ -25,5 +25,15 @@ dist/
 .DS_Store
 Thumbs.db
 
+# Secrets — never commit credentials
+aws_cred.md
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
 # Test
 tests/screenshots/
+test-results/
